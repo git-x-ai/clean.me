@@ -1,0 +1,59 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build CSS
+      run: npm run build:css
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Create portable version
+      run: |
+        powershell -Command "Compress-Archive -Path 'dist\win-unpacked\*' -DestinationPath 'dist\Clean.me-Portable-${{ github.ref_name }}.zip' -Force"
+        
+    - name: Create source archive
+      run: |
+        powershell -Command "Get-ChildItem -Path 'src', 'assets', 'build', 'docs', 'package.json', 'package-lock.json', 'README.md', 'LICENSE', '.gitignore', 'tailwind.config.js', 'postcss.config.js' | Compress-Archive -DestinationPath 'dist\Clean.me-Source-${{ github.ref_name }}.zip' -Force"
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Clean.me-${{ github.ref_name }}
+        path: dist/
+        retention-days: 30
+        
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/Clean.me Setup *.exe
+          dist/Clean.me-Portable-*.zip
+          dist/Clean.me-Source-*.zip
+        body_path: RELEASE_NOTES.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

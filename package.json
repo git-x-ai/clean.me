@@ -1,0 +1,68 @@
+{
+  "name": "clean-me",
+  "version": "1.0.0",
+  "description": "One-click Windows PC cleaner that removes all temporary files and traces safely",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "npm run build:css && electron-builder",
+    "build:css": "tailwindcss -i src/input.css -o src/styles.css --minify",
+    "build:css:watch": "tailwindcss -i src/input.css -o src/styles.css --watch",
+    "dist": "npm run build:css && electron-builder --publish=never",
+    "dev": "npm run build:css && electron . --dev"
+  },
+  "keywords": [
+    "windows",
+    "cleaner",
+    "temp",
+    "cache",
+    "cleanup",
+    "electron",
+    "glassmorphism"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/git-x-ai/clean.me.git"
+  },
+  "bugs": {
+    "url": "https://github.com/git-x-ai/clean.me/issues"
+  },
+  "author": "XTRA Tweaks LLC",
+  "homepage": "https://xtratweaks.com",
+  "license": "SEE LICENSE IN LICENSE",
+  "copyright": "Copyright © 2025 XTRA Tweaks LLC. All rights reserved.",
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "electron": "^38.1.2",
+    "electron-builder": "^24.6.4",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.0"
+  },
+  "build": {
+    "appId": "com.xtratweaks.cleanme",
+    "productName": "Clean.me",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      },
+      "icon": "assets/favicon.ico",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerSidebar": "assets/wizard.bmp"
+    }
+  }
+}

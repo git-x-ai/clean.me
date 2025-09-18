@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean.me - XTRA Tweaks LLC</title>
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico">
+    <link href="styles.css" rel="stylesheet">
+    <style>
+        /* Additional custom styles */
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Glass Button Container */
+        .glass-button {
+            --bg-color: rgba(255, 255, 255, 0.25);
+            --highlight: rgba(255, 255, 255, 0.75);
+            --text: #ffffff;
+            
+            position: relative;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            overflow: hidden;
+            background: transparent !important;
+            transition: transform 0.2s ease;
+            outline: none !important;
+            color: #ffffff !important;
+        }
+
+        .glass-button:hover {
+            transform: scale(1.05);
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+
+        .glass-button:focus {
+            background: transparent !important;
+            color: #ffffff !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .glass-button:active {
+            transform: scale(0.95);
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+
+        .glass-filter,
+        .glass-overlay,
+        .glass-specular {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+        }
+
+        .glass-filter {
+            z-index: 1;
+            backdrop-filter: blur(4px);
+            filter: url(#glass-distortion) saturate(120%) brightness(1.15);
+        }
+
+        .glass-overlay {
+            z-index: 2;
+            background: var(--bg-color);
+        }
+
+        .glass-specular {
+            z-index: 3;
+            box-shadow: inset 1px 1px 1px var(--highlight);
+        }
+
+        .glass-content {
+            position: relative;
+            z-index: 4;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        /* Dark mode styles */
+        @media (prefers-color-scheme: dark) {
+            .glass-button {
+                --bg-color: rgba(0, 0, 0, 0.25);
+                --highlight: rgba(255, 255, 255, 0.15);
+            }
+        }
+        
+        /* Remove all blue colors from the app */
+        * {
+            --tw-blue-400: #ffffff !important;
+            --tw-blue-500: #ffffff !important;
+            --tw-blue-600: #ffffff !important;
+        }
+        
+        .hover\:text-blue-400:hover {
+            color: #ffffff !important;
+        }
+        
+        .text-blue-400 {
+            color: #ffffff !important;
+        }
+        
+        /* Override all button styles */
+        button {
+            background: transparent !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        button:hover {
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+        
+        button:focus {
+            background: transparent !important;
+            color: #ffffff !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        button:active {
+            background: transparent !important;
+            color: #ffffff !important;
+        }
+        
+        .glass-status {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glass-status::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent
+            );
+            opacity: 0.4;
+        }
+        
+        .glass-effect {
+            background: rgba(26, 26, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+        }
+        
+        .cleanup-icon {
+            font-size: 4rem;
+            background: linear-gradient(45deg, #ffffff, #e5e7eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="m-0 p-0 select-none overflow-hidden">
+    <!-- SVG Filter for Glass Distortion -->
+    <svg style="display: none">
+        <filter id="glass-distortion">
+            <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+        </filter>
+    </svg>
+    
+    <div class="w-full h-screen flex items-center justify-center bg-transparent">
+        <!-- Main Container -->
+        <div class="glass-effect rounded-3xl p-8 w-96 h-auto min-h-[500px] shadow-2xl drag-region">
+            
+            <!-- Window Controls -->
+            <div class="flex justify-between items-center mb-6 no-drag">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full cursor-pointer hover:bg-red-600" id="close-btn"></div>
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full cursor-pointer hover:bg-yellow-600" id="minimize-btn"></div>
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div class="github-icon-container cursor-pointer" id="github-btn">
+                    <img src="../assets/github.svg" alt="GitHub" class="github-icon w-5 h-5 opacity-80 hover:opacity-100 hover:scale-110 hover:brightness-0 hover:invert transition-all duration-200">
+                </div>
+            </div>
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="mb-4">
+                    <img src="../assets/logo.png" alt="Clean.me Logo" class="w-16 h-16 mx-auto object-contain">
+                </div>
+                <h1 class="text-2xl font-bold text-white mb-2">Clean.me</h1>
+                <p class="text-gray-300 text-sm">One-click cleanup for your Windows PC</p>
+            </div>
+
+            <!-- Status Display -->
+            <div class="mb-8 text-center">
+                <div class="glass-status rounded-xl p-4 mb-4">
+                    <div class="text-gray-300 text-sm mb-2" id="status-title">Ready to clean</div>
+                    <div class="text-white text-lg font-semibold" id="status-text">Click below to start cleaning</div>
+                    <div class="text-gray-400 text-xs mt-2" id="current-path">Ready to start</div>
+                </div>
+            </div>
+
+            <!-- Main Cleanup Button -->
+            <div class="text-center mb-6 no-drag">
+                <button id="cleanup-btn" class="glass-button w-full py-4 px-6 rounded-2xl text-white font-semibold text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                    <div class="glass-filter"></div>
+                    <div class="glass-overlay"></div>
+                    <div class="glass-specular"></div>
+                    <div class="glass-content">
+                        <span id="btn-text">Start Cleanup</span>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Debug Link -->
+            <div class="absolute bottom-4 left-4 no-drag">
+                <a href="#" id="debug-link" class="text-xs text-gray-400 hover:text-white transition-colors duration-200">debug</a>
+            </div>
+
+            <!-- Copyright -->
+            <div class="absolute bottom-4 right-4 no-drag">
+                <div class="text-xs text-gray-500 opacity-30">
+                    © 2025 XTRA Tweaks LLC
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

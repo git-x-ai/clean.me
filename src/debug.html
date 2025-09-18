@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean.me Debug Console</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+            font-size: 12px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #333;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .title {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .btn:hover {
+            background-color: #555;
+        }
+        
+        .log-container {
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            background-color: #0d1117;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 8px;
+        }
+        
+        .log-entry {
+            margin-bottom: 2px;
+            padding: 2px 4px;
+            border-radius: 2px;
+            word-wrap: break-word;
+        }
+        
+        .log-timestamp {
+            color: #6b7280;
+            margin-right: 8px;
+        }
+        
+        .log-level {
+            font-weight: bold;
+            margin-right: 8px;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 10px;
+        }
+        
+        .log-level.INFO {
+            background-color: #059669;
+            color: white;
+        }
+        
+        .log-level.ERROR {
+            background-color: #dc2626;
+            color: white;
+        }
+        
+        .log-level.WARN {
+            background-color: #d97706;
+            color: white;
+        }
+        
+        .log-message {
+            color: #e5e7eb;
+        }
+        
+        .log-args {
+            color: #9ca3af;
+            margin-left: 10px;
+        }
+        
+        /* Scrollbar styling */
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .log-container::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+            border-radius: 4px;
+        }
+        
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">Clean.me Debug Console</div>
+        <div class="controls">
+            <button class="btn" id="clear-btn">Clear</button>
+            <button class="btn" id="export-btn">Export</button>
+        </div>
+    </div>
+    
+    <div class="log-container" id="log-container">
+        <div class="log-entry">
+            <span class="log-timestamp">[Starting]</span>
+            <span class="log-level INFO">INFO</span>
+            <span class="log-message">Debug console initialized</span>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const logContainer = document.getElementById('log-container');
+        const clearBtn = document.getElementById('clear-btn');
+        const exportBtn = document.getElementById('export-btn');
+
+        // Auto-scroll to bottom
+        function scrollToBottom() {
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Add log entry to display
+        function addLogEntry(logEntry) {
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            
+            const argsText = logEntry.args && logEntry.args.length > 0 
+                ? `<span class="log-args">${logEntry.args.join(' ')}</span>` 
+                : '';
+            
+            div.innerHTML = `
+                <span class="log-timestamp">[${logEntry.timestamp}]</span>
+                <span class="log-level ${logEntry.level}">${logEntry.level}</span>
+                <span class="log-message">${logEntry.message}</span>
+                ${argsText}
+            `;
+            
+            logContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        // Listen for new log entries
+        ipcRenderer.on('debug-log', (event, logEntry) => {
+            addLogEntry(logEntry);
+        });
+
+        // Load existing logs
+        ipcRenderer.invoke('get-debug-logs').then(logs => {
+            logs.forEach(logEntry => {
+                addLogEntry(logEntry);
+            });
+        });
+
+        // Clear logs
+        clearBtn.addEventListener('click', () => {
+            logContainer.innerHTML = '';
+        });
+
+        // Export logs
+        exportBtn.addEventListener('click', () => {
+            ipcRenderer.invoke('get-debug-logs').then(logs => {
+                const logText = logs.map(entry => 
+                    `[${entry.timestamp}] [${entry.level}] ${entry.message} ${entry.args.join(' ')}`
+                ).join('\n');
+                
+                const blob = new Blob([logText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Clean.me-Debug-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+
+        console.log('Debug console loaded');
+    </script>
+</body>
+</html>
